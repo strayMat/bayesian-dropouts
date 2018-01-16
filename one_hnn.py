@@ -10,7 +10,8 @@ from keras.layers import Dense, Activation, Dropout
 from keras.datasets import mnist
 from keras.optimizers import RMSprop
 
-## In this file, we create a neural network with one hidden layer and apply it to the mnist dataset in order to address the classification problem.
+# In this file, we create a neural network with one hidden layer
+# and apply it to the mnist dataset in order to address the classification problem.
 
 # loading mnist and split between train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -30,15 +31,15 @@ print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
 
 # convert class vectors to binary class matrices
-y_train = keras.utils.to_categorical(y_train, num_classes)
-y_test = keras.utils.to_categorical(y_test, num_classes)
+y_train = keras.utils.to_categorical(y_train, num_classes=None)
+y_test = keras.utils.to_categorical(y_test, num_classes=None)
 
 # dimensions for the NN:
 # input dimension
 Q = x_train.shape[1]
 # hidden layer dimension
 K = 100
-# output dimension 
+# output dimension
 D = 512
 
 # network parameters

@@ -15,28 +15,31 @@ input:  S, a sample of predictions (T forward passes) of size Txnum_classes for 
         classes, the classes for which displaying the probability distributions
 output: The plot of the distributions of the predicted probabilities for the desired classes
 """
-def plot_pred(S, classes, yp = 0, legend = False):
+def plot_pred(S, classes, yp = 0, legend = False, label2name = None):
     mapc = cm.tab10
     colors = dict(zip(classes, mapc.colors[:len(classes)]))
     #plt.figure(figsize= (8, 2))
     for cl in classes:
-        plt.scatter(x = S[:,cl], y = np.array([1]*S.shape[0])*yp, label = cl, marker= '|', c = colors[cl], linewidth  = 2)
+        labels = cl
+        if label2name != None:
+            labels = label2name[cl]
+        plt.scatter(x = S[:,cl], y = np.array([1]*S.shape[0])*yp, label = labels, marker= '|', c = colors[cl], linewidth  = 2)
     for cl in classes:
         plt.scatter(x = np.mean(S[:,cl]), y = yp, c = colors[cl], linewidths= 4)
     if legend:plt.legend()
     return
 
 # Wrapper function for plotting the image and the distribution, [deprecated in favor of plot_rotated]
-def plot_pred_img(x, model, nb_class, S = 'softmax_out', yp = 0):
+def plot_pred_img(x, model, nb_class, S = 'softmax_out', yp = 0, label2name = None):
     classes = np.argsort(model.predict(x_ex.reshape(1,-1))[0])[-3:]
     S_in, S_out = softmax_in_out(x, model, nb_cl=10)
     fig = plt.figure(figsize = (10,2))
     gs =gridspec.GridSpec(1,2, width_ratios= [7,1])
     a = plt.subplot(gs[0])
     if S == 'softmax_out':
-        plot_pred(S_out, classes, yp, legend = True)
+        plot_pred(S_out, classes, yp, legend = True, label2name = label2name)
     elif S == 'softmax_in':
-        plot_pred(S_in, classes, yp, legend = True)
+        plot_pred(S_in, classes, yp, legend = True, label2name = label2name)
     b = plt.subplot(gs[1])
     x_pl = x.reshape((28,28))
     plt.imshow(x_pl, cmap = "gray")
@@ -52,7 +55,7 @@ input:  x, the input image
         S, to plot the output or input of the softmax layer (either 'softmax_in' or 'softmax_out')
 output: the plot 
 """
-def plot_rotated(x, model, nb_class, S = 'softmax_out'):
+def plot_rotated(x, model, nb_class, S = 'softmax_out', label2name = None):
     classes = np.argsort(model.predict(x.reshape(1,-1))[0])[-3:]
     nb_rotations = 6 # change this if more or less rotated versions of the image is needed
     x_pl = x.reshape((28,28))
@@ -66,9 +69,9 @@ def plot_rotated(x, model, nb_class, S = 'softmax_out'):
         l = False
         if i == 0:l = True
         if S == 'softmax_out':
-            plot_pred(S_out, classes, yp = -i, legend=l)
+            plot_pred(S_out, classes, yp = -i, legend=l, label2name = label2name)
         elif S == 'softmax_in':
-            plot_pred(S_in, classes, yp = -i, legend=l)
+            plot_pred(S_in, classes, yp = -i, legend=l, label2name = label2name)
     for (i, x) in zip(np.arange(nb_rotations), x_rotated):
         plt.subplot(gs[i, -1])
         plt.imshow(x, cmap = 'gray')

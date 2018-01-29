@@ -40,7 +40,7 @@ K = 100
 D = num_classes
 
 # dropout rate
-p = 0.5
+DROP_OUT = 0.5
 N = x_train.shape[0]
 # l2 regularization
 #prior length scale
@@ -48,7 +48,7 @@ l = 1e-2
 # precision parameter, un peu au pif pour l'instant
 tau = 1e-1
 
-lambd = p*l**2/(2*N)
+lambd = DROP_OUT*l**2/(2*N)
 
 # convert class vectors to binary class matrices
 y_train = keras.utils.to_categorical(y_train, num_classes)
@@ -58,10 +58,10 @@ print("----------Data loaded and preprocessed----------")
 # Create the neural network model and train it
 model = Sequential()
 model.add(Dense(K, input_shape = (Q, ), activation = 'relu', use_bias= True, kernel_regularizer = regularizers.l2(lambd), bias_regularizer = regularizers.l2(lambd)))
-model.add(Dropout(p))
+model.add(Dropout(DROP_OUT))
 # softmax layer
 model.add(Dense(num_classes, use_bias = False, activation = None, kernel_regularizer = regularizers.l2(lambd)))
-model.add(Dropout(p))
+model.add(Dropout(DROP_OUT))
 model.add(Activation('softmax'))
 
 model.summary()
@@ -85,6 +85,7 @@ print('Test accuracy:', score[1])
 
 # Rough comparison between the classic neural network and the bayesian estimation
 
+print("----------Show one exemple and its confidence distribution---------")
 ix = 8
 x_ex = x_test[ix]
 print("Network prediction: " + str(model.predict(x_ex.reshape((1, -1)))))
@@ -100,14 +101,16 @@ plt.imshow(x_pl, cmap = "gray")
 plt.show()
 
 classes = np.argsort(model.predict(x_ex.reshape(1,-1))[0])[-3:]
-S_in, S_out = softmax_in_out(x_ex, model, nb_cl=10)
+S_in, S_out = softmax_in_out(x_ex, model, nb_cl=10, drop_out = DROP_OUT)
 plot_pred(S_out, classes, legend=True)
 plt.show()
 
 
 print("----------Assessing uncertainty for rotated example of a data point---------")
-
+# change NB_SHOW to show more or less classes on the rotated plot
+NB_SHOW = 5
+#select an index for image sample
 ix = 9
 x_ex = x_test[ix]
-plot_rotated(x_ex, model , nb_class=10)
+plot_rotated(x_ex, model , nb_class=10, drop_out = DROP_OUT, nb_show =NB_SHOW)
 plt.show()

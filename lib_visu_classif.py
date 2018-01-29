@@ -30,9 +30,10 @@ def plot_pred(S, classes, yp = 0, legend = False, label2name = None):
     return
 
 # Wrapper function for plotting the image and the distribution, [deprecated in favor of plot_rotated]
-def plot_pred_img(x, model, nb_class, S = 'softmax_out', yp = 0, label2name = None):
+"""
+def plot_pred_img(x, model, nb_class, S = 'softmax_out', yp = 0, label2name = None, drop_out = 0.5):
     classes = np.argsort(model.predict(x_ex.reshape(1,-1))[0])[-3:]
-    S_in, S_out = softmax_in_out(x, model, nb_cl=10)
+    S_in, S_out = softmax_in_out(x, model, nb_cl=10, dropt_out = drop_out)
     fig = plt.figure(figsize = (10,2))
     gs =gridspec.GridSpec(1,2, width_ratios= [7,1])
     a = plt.subplot(gs[0])
@@ -46,6 +47,7 @@ def plot_pred_img(x, model, nb_class, S = 'softmax_out', yp = 0, label2name = No
     #plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
     plt.setp([b.get_xticklabels(), b.get_yticklabels(), a.get_yticklabels()], visible = False)
     return 
+"""
 
 """
 Function to plot an image and its predicted classes for several rotations of the image
@@ -55,8 +57,8 @@ input:  x, the input image
         S, to plot the output or input of the softmax layer (either 'softmax_in' or 'softmax_out')
 output: the plot 
 """
-def plot_rotated(x, model, nb_class, S = 'softmax_out', label2name = None):
-    classes = np.argsort(model.predict(x.reshape(1,-1))[0])[-3:]
+def plot_rotated(x, model, nb_class, S = 'softmax_out', label2name = None, nb_show = 3, drop_out = 0.5):
+    classes = np.argsort(model.predict(x.reshape(1,-1))[0])[-nb_show:]
     nb_rotations = 6 # change this if more or less rotated versions of the image is needed
     x_pl = x.reshape((28,28))
     x_rotated = [imutils.rotate(x_pl, r) for r in np.linspace(0,180, nb_rotations)]
@@ -64,7 +66,7 @@ def plot_rotated(x, model, nb_class, S = 'softmax_out', label2name = None):
     gs = gridspec.GridSpec(nb_rotations, nb_rotations)
     ax1 = plt.subplot(gs[:,:-1])
     for (i, x) in zip((np.arange(nb_rotations)), x_rotated):        
-        S_in, S_out = softmax_in_out(x.reshape((1,784)), model, nb_cl=nb_class)
+        S_in, S_out = softmax_in_out(x.reshape((1,784)), model, nb_cl=nb_class, drop_out = drop_out)
         # trick to show legend only once 
         l = False
         if i == 0:l = True

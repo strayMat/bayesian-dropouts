@@ -1,11 +1,8 @@
 import numpy as np
 from tqdm import tqdm
 
-import numpy as np
-from tqdm import tqdm
 
-
-def gradient_descent_dropout(x, y, p1, p2, tau, ep=0.0001, max_iter=1000, alpha = 0.0001):
+def gradient_descent_dropout(x, y, p1, p2, ep=0.0001, max_iter=1000, alpha = 0.0001, decrease_lr = False):
 
     res = []
     converged = False
@@ -24,7 +21,7 @@ def gradient_descent_dropout(x, y, p1, p2, tau, ep=0.0001, max_iter=1000, alpha 
 
     tau = p1/(2*0.01*N)
 
-    for _ in tqdm(range(max_iter), desc="main loop"):
+    for it in tqdm(range(max_iter), desc="main loop"):
 
         z1v = np.zeros((Q,N))
         z2v = np.zeros((K,N))
@@ -73,10 +70,16 @@ def gradient_descent_dropout(x, y, p1, p2, tau, ep=0.0001, max_iter=1000, alpha 
         grad_M2 += p2 * M2
         grad_m += m
 
+        # Using decreasing step
+        if(decrease_lr):
+            alpha_tmp = alpha/(1.+(0.0001 * iter))**(0.25)
+        else:
+            alpha_tmp = alpha
+
         # update M
-        M1 -= alpha * grad_M1
-        M2 -= alpha * grad_M2
-        m -= alpha * grad_m
+        M1 -= alpha_tmp * grad_M1
+        M2 -= alpha_tmp * grad_M2
+        m -= alpha_tmp * grad_m
 
         res.append(L_GP_MC)
 
@@ -97,9 +100,9 @@ class Gaussian_Process:
         self.M2 = 0
         self.m = 0
 
-    def fit(self, X_train, Y_train, p1=0.8, p2=0.9, tau=0.1, ep=0.0001, max_iter=1000, alpha = 0.0005, verbose=False):
+    def fit(self, X_train, Y_train, p1=0.8, p2=0.9, ep=0.0001, max_iter=1000, alpha = 0.0005, verbose=False):
 
-        history_loss, self.M1, self.M2, self.m = gradient_descent_dropout(X_train, Y_train, p1, p2, 0.1, ep=1e-7, max_iter=max_iter, alpha = alpha)
+        history_loss, self.M1, self.M2, self.m = gradient_descent_dropout(X_train, Y_train, p1, p2, ep=1e-7, max_iter=max_iter, alpha = alpha)
         return history_loss
 
     def predict(self, X_test, p1=0.8, p2=0.9):

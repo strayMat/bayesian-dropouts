@@ -5,7 +5,7 @@ import imutils
 
 import numpy as np 
 
-from lib_classifNN import *
+from utils_classifNN import *
 
 # graphical functions to display the distribution of the predictions for the classification case 
 # The most useful function to display the final result is plot_rotated
